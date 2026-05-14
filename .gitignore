@@ -87,3 +87,4 @@ mvnw.cmd
 coverage/
 .nyc_output/
 nlp-orchestrator/.env
+backend/nyaysetu-backend/src/main/resources/application.properties
