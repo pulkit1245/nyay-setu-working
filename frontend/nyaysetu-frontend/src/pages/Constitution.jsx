@@ -1,7 +1,14 @@
 import { useState, useMemo, useEffect } from 'react';
 
 import { useTheme } from '../contexts/ThemeContext';
-import { Search, BookOpen, Globe, Download, Bookmark, MessageCircle, Share2, X, BookmarkPlus, Loader2 } from 'lucide-react';
+import {
+    Search, BookOpen, Globe, Download, Bookmark, MessageCircle, Share2, X, BookmarkPlus, Loader2, Map,
+    ShieldCheck,
+    Landmark,
+    Scale,
+    Building2,
+    Users
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/landing/Header';
@@ -14,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 export default function Constitution() {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation('constitution');
-    
+
     const { theme } = useTheme();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedPartId, setSelectedPartId] = useState(null);
@@ -28,9 +35,16 @@ export default function Constitution() {
     const language = i18n.language;
 
     // Enhanced Constitution Data with more articles
-    
+    const partIcons = {
+        1: <Map size={40} />,
+        3: <ShieldCheck size={40} />,
+        4: <Landmark size={40} />,
+        5: <Scale size={40} />,
+        6: <Building2 size={40} />,
+        9: <Users size={40} />,
+    };
 
-    
+
     const parts = useMemo(() => {
         return i18n.getResource(
             i18n.language,
@@ -51,7 +65,7 @@ export default function Constitution() {
         );
     }, [selectedPart, selectedArticleNumber]);
 
-    
+
     const filteredParts = parts.filter(part =>
         part.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         part.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -100,6 +114,10 @@ export default function Constitution() {
                 <div style={{
                     padding: '3rem',
                     background: 'var(--bg-glass)',
+                    backgroundImage: "url('/assets/constitution.png')",
+                    backgroundPosition: 'center',
+                    backgroundSize: "cover",
+                    backgroundRepeat: "no-repeat",
                     backdropFilter: 'blur(20px)',
                     WebkitBackdropFilter: 'blur(20px)',
                     border: '1px solid var(--border-light)',
@@ -247,7 +265,7 @@ export default function Constitution() {
                 <div style={{ display: 'grid', gridTemplateColumns: showAIChat ? '1fr 400px' : '1fr', gap: '2rem' }}>
                     {/* Main Content */}
                     <div>
-                        {selectedArticleNumber && selectedArticle  ? (
+                        {selectedArticleNumber && selectedArticle ? (
                             // Article Detail View
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -496,6 +514,22 @@ export default function Constitution() {
                                             color: '#FFFFFF'
                                         }}>
                                             {part.articles.length} {t('constitution:articles')}
+                                        </div>
+
+                                        <div
+                                            style={{
+                                                width: '72px',
+                                                height: '72px',
+                                                borderRadius: '20px',
+                                                background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                color: '#4F46E5',
+                                                marginBottom: '1.5rem',
+                                            }}
+                                        >
+                                            {partIcons[part.id] || <BookOpen size={40} />}
                                         </div>
 
                                         <h3 style={{ color: 'var(--color-primary)', fontSize: '1.5rem', fontWeight: '800', marginBottom: '1rem', lineHeight: '1.3', paddingRight: '3rem' }}>
