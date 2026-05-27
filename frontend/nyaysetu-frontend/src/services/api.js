@@ -3,17 +3,17 @@ import axios from 'axios';
 // Use explicit backend URL - Vite proxy can be unreliable
 // In development: http://localhost:8080
 // In production: Replace with actual backend URL via environment variable
-// Use explicit backend URL - Vite proxy can be unreliable
-// In development: http://localhost:8080
-// In production: Replace with actual backend URL via environment variable
-// Check multiple variable names to be safe
-// Smart Base URL detection
+// Smart Base URL detection with safe fallbacks
 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const PROD_BACKEND = 'https://nyaysetubackend.onrender.com';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ||
     import.meta.env.VITE_API_URL ||
     (isLocalhost ? 'http://localhost:8080' : PROD_BACKEND);
+
+if (import.meta.env.DEV) {
+    console.log('[api.js] Using API_BASE_URL:', API_BASE_URL);
+}
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -113,6 +113,12 @@ export const documentAPI = {
     downloadCertificate: (id) => api.get(`/api/documents/${id}/certificate`, { responseType: 'blob' })
 };
 
+// Document Generation API (AI-powered legal document drafting)
+export const documentGenerateAPI = {
+    preview: (data) => api.post('/api/documents/generate/preview', data),
+    download: (data) => api.post('/api/documents/generate/download', data, { responseType: 'blob' }),
+};
+
 // Hearing API
 export const hearingAPI = {
     schedule: (hearingData) => api.post('/api/hearings/schedule', hearingData),
@@ -137,11 +143,7 @@ export const meetingAPI = {
 export const vakilFriendAPI = {
     startSession: () => api.post('/api/vakil-friend/start'),
     startCaseSession: (caseId) => api.post(`/api/vakil-friend/case/${caseId}/start`),
-    sendMessage: (sessionId, message, options = {}) => api.post(`/api/vakil-friend/chat/${sessionId}`, {
-        message,
-        language: options.language || 'en',
-        audioData: options.audioData || null,
-    }),
+    sendMessage: (sessionId, payload) => api.post(`/api/vakil-friend/chat/${sessionId}`, payload),
     completeSession: (sessionId) => api.post(`/api/vakil-friend/complete/${sessionId}`),
     getSession: (sessionId) => api.get(`/api/vakil-friend/session/${sessionId}`),
     getSessions: () => api.get('/api/vakil-friend/sessions'),
@@ -177,7 +179,6 @@ export const assignmentAPI = {
     getLawyers: () => api.get('/api/users/lawyers'),
 };
 
-// Message API
 // Message API
 export const messageAPI = {
     send: (caseId, messageOrPayload) => {

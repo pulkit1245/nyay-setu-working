@@ -265,10 +265,7 @@ export default function VakilFriendChat() {
                 audioData: audioData // This will be null for browser speech
             };
 
-            const response = await vakilFriendAPI.sendMessage(sessionId, userMessage, {
-                language: language,
-                audioData: audioData,
-            });
+            const response = await vakilFriendAPI.sendMessage(sessionId, payload);
 
             const data = response.data;
 
