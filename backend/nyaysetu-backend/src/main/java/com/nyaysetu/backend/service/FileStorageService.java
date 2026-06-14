@@ -43,7 +43,13 @@ public class FileStorageService {
             Files.createDirectories(categoryPath);
 
             // Copy file to the target location
-            Path targetLocation = categoryPath.resolve(fileName);
+            Path targetLocation = categoryPath.resolve(fileName).normalize();
+            
+            // Security Check: Prevent Path Traversal
+            if (!targetLocation.startsWith(this.fileStorageLocation)) {
+                throw new SecurityException("Path traversal attack detected! Invalid category.");
+            }
+
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
             return category + "/" + fileName;
@@ -55,6 +61,12 @@ public class FileStorageService {
     public Resource loadFileAsResource(String filePath) {
         try {
             Path file = this.fileStorageLocation.resolve(filePath).normalize();
+            
+            // Security Check: Prevent Path Traversal
+            if (!file.startsWith(this.fileStorageLocation)) {
+                throw new SecurityException("Path traversal attack detected!");
+            }
+            
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists()) {
                 return resource;
@@ -69,6 +81,12 @@ public class FileStorageService {
     public void deleteFile(String filePath) {
         try {
             Path file = this.fileStorageLocation.resolve(filePath).normalize();
+            
+            // Security Check: Prevent Path Traversal
+            if (!file.startsWith(this.fileStorageLocation)) {
+                throw new SecurityException("Path traversal attack detected!");
+            }
+            
             Files.deleteIfExists(file);
         } catch (IOException ex) {
             throw new RuntimeException("Could not delete file: " + filePath, ex);
@@ -80,6 +98,12 @@ public class FileStorageService {
      */
     public java.io.File getFile(String filePath) {
         Path file = this.fileStorageLocation.resolve(filePath).normalize();
+        
+        // Security Check: Prevent Path Traversal
+        if (!file.startsWith(this.fileStorageLocation)) {
+            throw new SecurityException("Path traversal attack detected!");
+        }
+        
         if (!Files.exists(file)) {
             throw new RuntimeException("File not found: " + filePath);
         }
